@@ -11,8 +11,9 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registerWithEmail, useGoogleAuth } from '../../services/authService';
 
 const RegisterScreen = ({ navigation }) => {
@@ -29,26 +30,22 @@ const RegisterScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
-
     setLoading(true);
     try {
       const { user, error } = await registerWithEmail(email, password, name);
-      
       if (error) {
         Alert.alert('Registration Failed', error.message);
       } else if (user) {
-        // User will be redirected through the auth state listener
-        Alert.alert('Success', 'Account created successfully!');
+        await AsyncStorage.setItem('userToken', user.token);
+        navigation.replace('Home');
       }
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -63,6 +60,9 @@ const RegisterScreen = ({ navigation }) => {
       const result = await handleGoogleSignIn();
       if (result.error) {
         Alert.alert('Google Sign In Failed', result.error.message);
+      } else if (result.user) {
+        await AsyncStorage.setItem('userToken', result.user.token);
+        navigation.replace('Home');
       }
     } catch (error) {
       Alert.alert('Error', 'Google sign in failed. Please try again.');
@@ -79,45 +79,54 @@ const RegisterScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.logoContainer}>
           <Image 
-            source={require('../../../assets/logo.png')} 
-            style={styles.logo} 
+            source={require('../../../assets/logo.png')}
+            style={styles.logo}
             resizeMode="contain"
+            accessibilityLabel="WardrobeWise Logo"
           />
           <Text style={styles.appName}>WardrobeWise</Text>
         </View>
         
-        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.title}>Create Your Account</Text>
         
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: '100%' }]}
           placeholder="Full Name"
+          placeholderTextColor="#999"
           value={name}
           onChangeText={setName}
+          selectTextOnFocus={true}
         />
         
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: '100%' }]}
           placeholder="Email"
+          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          selectTextOnFocus={true}
         />
         
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: '100%' }]}
           placeholder="Password (min. 6 characters)"
+          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          selectTextOnFocus={true}
         />
         
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: '100%' }]}
           placeholder="Confirm Password"
+          placeholderTextColor="#999"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
+          selectTextOnFocus={true}
         />
         
         <TouchableOpacity 
@@ -128,7 +137,7 @@ const RegisterScreen = ({ navigation }) => {
           {loading ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Create Account</Text>
+            <Text style={styles.buttonText}>Register</Text>
           )}
         </TouchableOpacity>
         
@@ -144,8 +153,9 @@ const RegisterScreen = ({ navigation }) => {
           disabled={loading}
         >
           <Image 
-            source={require('../../../assets/google-logo.png')} 
-            style={styles.googleIcon} 
+            source={require('../../../assets/google-logo.png')}
+            style={styles.googleIcon}
+            resizeMode="contain"
           />
           <Text style={styles.googleButtonText}>Sign up with Google</Text>
         </TouchableOpacity>
@@ -163,10 +173,12 @@ const RegisterScreen = ({ navigation }) => {
   );
 };
 
+export default RegisterScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7F7F7',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -175,23 +187,24 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
   },
   appName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 5,
-    color: '#4285F4',
+    marginTop: 10,
+    color: '#48AAA6',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: '#48AAA6',
     textAlign: 'center',
+    marginBottom: 20,
   },
   input: {
     height: 50,
@@ -200,9 +213,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    color: '#000',
   },
   button: {
-    backgroundColor: '#4285F4',
+    backgroundColor: '#F2B705',
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
@@ -227,6 +243,7 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 10,
     color: '#888',
+    fontSize: 16,
   },
   googleButton: {
     flexDirection: 'row',
@@ -254,13 +271,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signInText: {
-    color: '#555',
+    color: '#48AAA6',
     fontSize: 14,
+    textAlign: 'center',
   },
   signInTextBold: {
     fontWeight: 'bold',
-    color: '#4285F4',
   },
 });
-
-export default RegisterScreen;
