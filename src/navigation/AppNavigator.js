@@ -1,6 +1,6 @@
 // src/navigation/AppNavigator.js
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,13 +24,22 @@ import AnalyticsScreen from '../screens/main/AnalyticsScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// Custom Navigation Theme
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: '#F7F7F7',
+  },
+};
+
 function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false, // Disable header for Tab screens
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Closet') {
@@ -42,38 +51,23 @@ function MainTabNavigator() {
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#4285F4',
+        tabBarActiveTintColor: '#48AAA6', // Primary color
         tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#F7F7F7',
+          borderTopColor: '#ddd',
+          paddingBottom: 4,
+          paddingTop: 4,
+        },
       })}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ headerShown: true }}
-      />
-      <Tab.Screen 
-        name="Closet" 
-        component={ClosetScreen} 
-        options={{ headerShown: true }}
-      />
-      <Tab.Screen 
-        name="Calendar" 
-        component={CalendarScreen} 
-        options={{ headerShown: true }}
-      />
-      <Tab.Screen 
-        name="Social" 
-        component={SocialScreen} 
-        options={{ headerShown: true }}
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsScreen} 
-        options={{ headerShown: true }}
-      />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Closet" component={ClosetScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Social" component={SocialScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 }
@@ -89,27 +83,11 @@ function AuthNavigator() {
 
 function MainNavigator() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="MainTab" 
-        component={MainTabNavigator} 
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="OutfitCustomizer" 
-        component={OutfitCustomizerScreen} 
-        options={{ title: 'Customize Outfit' }}
-      />
-      <Stack.Screen 
-        name="AddClothing" 
-        component={AddClothingScreen} 
-        options={{ title: 'Add New Item' }}
-      />
-      <Stack.Screen 
-        name="Analytics" 
-        component={AnalyticsScreen} 
-        options={{ title: 'Closet Analytics' }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTab" component={MainTabNavigator} />
+      <Stack.Screen name="OutfitCustomizer" component={OutfitCustomizerScreen} />
+      <Stack.Screen name="AddClothing" component={AddClothingScreen} />
+      <Stack.Screen name="Analytics" component={AnalyticsScreen} />
     </Stack.Navigator>
   );
 }
@@ -122,7 +100,7 @@ function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={MyTheme}>
       {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
