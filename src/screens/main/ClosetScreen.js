@@ -12,25 +12,29 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import ClothingInfoDialog from './ClothingInfoDialog';
 
 const typeFilters = ["Tops", "Bottoms", "Shoes", "Accessories"];
 const colorFilters = ["Red", "Blue", "Green", "Black", "White"];
 const frequencyFilters = ["Most Worn", "Least Worn"];
 
 const dummyItems = [
-  { id: '1', name: 'Red Dress', timesWorn: 5, type: 'Tops', color: 'Red' },
-  { id: '2', name: 'Blue Jeans', timesWorn: 3, type: 'Bottoms', color: 'Blue' },
-  { id: '3', name: 'White Shirt', timesWorn: 8, type: 'Tops', color: 'White' },
-  { id: '4', name: 'Black Jacket', timesWorn: 2, type: 'Tops', color: 'Black' },
-  { id: '5', name: 'Green Skirt', timesWorn: 6, type: 'Bottoms', color: 'Green' },
-  { id: '6', name: 'Red Sneakers', timesWorn: 4, type: 'Shoes', color: 'Red' },
+  { id: '1', name: 'Red Dress', timesWorn: 5, type: 'Tops', color: 'Red', lastWorn: '2025-03-15', price: 75, image: require('../../../assets/red_dress.jpg') },
+  { id: '2', name: 'Blue Jeans', timesWorn: 3, type: 'Bottoms', color: 'Blue', lastWorn: '2025-03-12', price: 50, image: require('../../../assets/blue_jeans.jpg') },
+  { id: '3', name: 'White Shirt', timesWorn: 8, type: 'Tops', color: 'White', lastWorn: '2025-03-18', price: 30, image: require('../../../assets/white_shirt.jpg') },
+  { id: '4', name: 'Black Jacket', timesWorn: 2, type: 'Tops', color: 'Black', lastWorn: '2025-03-20', price: 120, image: require('../../../assets/black_jacket.jpg') },
+  { id: '5', name: 'Green Skirt', timesWorn: 6, type: 'Bottoms', color: 'Green', lastWorn: '2025-03-10', price: 40, image: require('../../../assets/green_skirt.jpg') },
+  { id: '6', name: 'Red Sneakers', timesWorn: 4, type: 'Shoes', color: 'Red', lastWorn: '2025-03-19', price: 100, image: require('../../../assets/red_sneakers.webp') },
 ];
+
 
 const ClosetScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedFrequency, setSelectedFrequency] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   const navigation = useNavigation();
 
@@ -54,20 +58,32 @@ const ClosetScreen = () => {
   }
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemThumbnailContainer}>
-      <Image 
-        source={require('../../../assets/logo.png')}
-        style={styles.itemThumbnail}
-        resizeMode="cover"
-        accessibilityLabel={`${item.name} thumbnail`}
-      />
-      <Text style={styles.itemName}>{item.name}</Text>
-      <View style={styles.timesWornContainer}>
-        <Ionicons name="time-outline" size={14} color="#48AAA6" />
-        <Text style={styles.timesWornText}>{item.timesWorn}</Text>
+    <TouchableOpacity onPress={() => openDialog(item)}>
+      <View style={styles.itemThumbnailContainer}>
+        <Image 
+          source={item.image}
+          style={styles.itemThumbnail}
+          resizeMode="cover"
+          accessibilityLabel={`${item.name} thumbnail`}
+        />
+        <Text style={styles.itemName}>{item.name}</Text>
+        <View style={styles.timesWornContainer}>
+          <Ionicons name="time-outline" size={14} color="#48AAA6" />
+          <Text style={styles.timesWornText}>{item.timesWorn}</Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
+
+  const openDialog = (item) => {
+    setSelectedItem(item);
+    setDialogVisible(true);
+  };
+  
+  const closeDialog = () => {
+    setDialogVisible(false);
+    setSelectedItem(null);
+  };
 
   return (
     <View style={styles.container}>
@@ -179,8 +195,18 @@ const ClosetScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}
-        contentContainerStyle={styles.itemsGrid}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+        paddingBottom: 80,
+        }}
+        columnWrapperStyle={{
+        justifyContent: 'space-evenly', // Balances space between items in each row
+        }}
+      />
+
+      <ClothingInfoDialog
+        visible={dialogVisible}
+        onClose={closeDialog}
+        item={selectedItem}
       />
 
       {/* Floating Action Button */}
