@@ -27,7 +27,6 @@ const dummyItems = [
   { id: '6', name: 'Red Sneakers', timesWorn: 4, type: 'Shoes', color: 'Red', lastWorn: '2025-03-19', price: 100, image: require('../../../assets/red_sneakers.webp') },
 ];
 
-
 const ClosetScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState(null);
@@ -68,7 +67,7 @@ const ClosetScreen = () => {
         />
         <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.timesWornContainer}>
-          <Ionicons name="time-outline" size={14} color="#48AAA6" />
+          <Ionicons name="time-outline" size={16} color="#48AAA6" />
           <Text style={styles.timesWornText}>{item.timesWorn}</Text>
         </View>
       </View>
@@ -76,7 +75,9 @@ const ClosetScreen = () => {
   );
 
   const openDialog = (item) => {
-    setSelectedItem(item);
+    const costPerWear = item.timesWorn ? (item.price / item.timesWorn).toFixed(2) : item.price.toFixed(2);
+    // Pass the computed costPerWear to the dialog by extending the item
+    setSelectedItem({ ...item, costPerWear });
     setDialogVisible(true);
   };
   
@@ -195,11 +196,9 @@ const ClosetScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}
-        contentContainerStyle={{
-        paddingBottom: 80,
-        }}
+        contentContainerStyle={styles.itemsGrid}
         columnWrapperStyle={{
-        justifyContent: 'space-evenly', // Balances space between items in each row
+          justifyContent: 'space-evenly',
         }}
       />
 
@@ -294,26 +293,26 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   itemsGrid: {
-    paddingBottom: 80, 
+    paddingBottom: 80,
   },
   itemThumbnailContainer: {
-    flex: 1,
+    width: 160,
     backgroundColor: '#fff',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 8,
-    margin: 4,
+    padding: 12,
+    margin: 8,
     alignItems: 'center',
   },
   itemThumbnail: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
+    width: 120,
+    height: 120,
+    borderRadius: 12,
     marginBottom: 8,
   },
   itemName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
     color: '#555',
     textAlign: 'center',
