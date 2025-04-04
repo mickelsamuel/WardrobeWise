@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -23,22 +22,12 @@ const HelpScreen = () => {
       Alert.alert('Missing Information', 'Please enter both a subject and a message.');
       return;
     }
-    // Construct a mailto URL to open the default email client with a pre-filled email.
-    const mailtoUrl = `mailto:mickelsamuel.b@gmail.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(message)}`;
-    Linking.openURL(mailtoUrl)
-      .then(() => {
-        Alert.alert(
-          'Request Submitted',
-          'Your help request has been sent. We will contact you soon.'
-        );
-        setSubject('');
-        setMessage('');
-      })
-      .catch(() => {
-        Alert.alert('Error', 'Unable to open the mail client. Please try again later.');
-      });
+    Alert.alert(
+      'Request Submitted',
+      'Your help request has been sent. We will contact you soon.'
+    );
+    setSubject('');
+    setMessage('');
   };
 
   return (
