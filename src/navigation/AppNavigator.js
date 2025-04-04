@@ -1,10 +1,9 @@
-// src/navigation/AppNavigator.js
 import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useAuth } from '../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
 
 // Auth Screens
 import SplashScreen from '../screens/auth/SplashScreen';
@@ -21,6 +20,7 @@ import SocialScreen from '../screens/main/SocialScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 import AnalyticsScreen from '../screens/main/AnalyticsScreen';
 import HelpScreen from '../screens/main/HelpScreen';
+import AddEventScreen from '../screens/main/AddEventScreen'; // Ensure this file exists and exports a component
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -89,6 +89,7 @@ function MainNavigator() {
       <Stack.Screen name="AddClothing" component={AddClothingScreen} />
       <Stack.Screen name="Analytics" component={AnalyticsScreen} />
       <Stack.Screen name="Help" component={HelpScreen} />
+      <Stack.Screen name="AddEvent" component={AddEventScreen} />
     </Stack.Navigator>
   );
 }
