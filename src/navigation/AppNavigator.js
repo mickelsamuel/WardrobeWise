@@ -20,11 +20,11 @@ import CalendarScreen from '../screens/main/CalendarScreen';
 import SocialScreen from '../screens/main/SocialScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 import AnalyticsScreen from '../screens/main/AnalyticsScreen';
+import HelpScreen from '../screens/main/HelpScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Custom Navigation Theme
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -37,7 +37,7 @@ function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false, // Disable header for Tab screens
+        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Home') {
@@ -53,7 +53,7 @@ function MainTabNavigator() {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#48AAA6', // Primary color
+        tabBarActiveTintColor: '#48AAA6',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
           backgroundColor: '#F7F7F7',
@@ -88,6 +88,7 @@ function MainNavigator() {
       <Stack.Screen name="OutfitCustomizer" component={OutfitCustomizerScreen} />
       <Stack.Screen name="AddClothing" component={AddClothingScreen} />
       <Stack.Screen name="Analytics" component={AnalyticsScreen} />
+      <Stack.Screen name="Help" component={HelpScreen} />
     </Stack.Navigator>
   );
 }
