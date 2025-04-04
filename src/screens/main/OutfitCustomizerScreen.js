@@ -6,33 +6,96 @@ import {
   StyleSheet, 
   TouchableOpacity, 
   ScrollView, 
-  Image 
+  TextInput, 
+  FlatList, 
+  Image,
+  Dimensions
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
-const filters = ['Shirts', 'Pants', 'Shoes', 'Accessories'];
+// Get screen width to calculate item width
+const { width } = Dimensions.get('window');
+const itemWidth = (width - 48) / 2; // 48 = padding (16) * 2 + spacing between items (16)
+
+const typeFilters = ["Tops", "Bottoms", "Shoes", "Accessories"];
+const colorFilters = ["Red", "Blue", "Green", "Black", "White"];
+const frequencyFilters = ["Most Worn", "Least Worn"];
+
+const dummyItems = [
+  { id: '1', name: 'Red Dress', timesWorn: 5, type: 'Tops', color: 'Red', lastWorn: '2025-03-15', price: 75, image: require('../../../assets/red_dress.jpg') },
+  { id: '2', name: 'Blue Jeans', timesWorn: 3, type: 'Bottoms', color: 'Blue', lastWorn: '2025-03-12', price: 50, image: require('../../../assets/blue_jeans.jpg') },
+  { id: '3', name: 'White Shirt', timesWorn: 8, type: 'Tops', color: 'White', lastWorn: '2025-03-18', price: 30, image: require('../../../assets/white_shirt.jpg') },
+  { id: '4', name: 'Black Jacket', timesWorn: 2, type: 'Tops', color: 'Black', lastWorn: '2025-03-20', price: 120, image: require('../../../assets/black_jacket.jpg') },
+  { id: '5', name: 'Green Skirt', timesWorn: 6, type: 'Bottoms', color: 'Green', lastWorn: '2025-03-10', price: 40, image: require('../../../assets/green_skirt.jpg') },
+  { id: '6', name: 'Red Sneakers', timesWorn: 4, type: 'Shoes', color: 'Red', lastWorn: '2025-03-19', price: 100, image: require('../../../assets/red_sneakers.webp') },
+];
 
 const OutfitCustomizerScreen = () => {
   const navigation = useNavigation();
-  const [selectedFilter, setSelectedFilter] = useState(null);
-  const dummyItems = Array(4).fill(0);
 
-  const handleSelectFilter = (filter) => {
-    setSelectedFilter(prev => prev === filter ? null : filter);
-  };
+  // Filter states
+  const [searchText, setSearchText] = useState('');
+  const [selectedType, setSelectedType] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedFrequency, setSelectedFrequency] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // Filtering logic
+  let filteredItems = dummyItems.filter(item => {
+    if (searchText.trim() && !item.name.toLowerCase().includes(searchText.toLowerCase())) {
+      return false;
+    }
+    if (selectedType && item.type !== selectedType) {
+      return false;
+    }
+    if (selectedColor && item.color !== selectedColor) {
+      return false;
+    }
+    return true;
+  });
+
+  if (selectedFrequency === "Most Worn") {
+    filteredItems.sort((a, b) => b.timesWorn - a.timesWorn);
+  } else if (selectedFrequency === "Least Worn") {
+    filteredItems.sort((a, b) => a.timesWorn - b.timesWorn);
+  }
 
   const handleConfirmOutfit = () => {
-    console.log('Outfit confirmed!');
+    console.log('Outfit confirmed!', selectedItem);
   };
 
   const handleReshuffle = () => {
     console.log('Outfit reshuffled!');
   };
 
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      onPress={() => setSelectedItem(item)}
+      style={[
+        styles.itemThumbnailContainer,
+        selectedItem?.id === item.id && styles.selectedItemContainer
+      ]}
+    >
+      <View style={styles.imageContainer}>
+        <Image 
+          source={item.image}
+          style={styles.itemThumbnail}
+          resizeMode="cover"
+          accessibilityLabel={`${item.name} thumbnail`}
+        />
+      </View>
+      <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
+      <View style={styles.timesWornContainer}>
+        <Ionicons name="time-outline" size={16} color="#48AAA6" />
+        <Text style={styles.timesWornText}>{item.timesWorn}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Custom Header with Back Navigation */}
+      {/* Header with Back Navigation */}
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()} 
@@ -44,65 +107,142 @@ const OutfitCustomizerScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        {/* Outfit Preview Pane */}
+        {/* Preview Pane */}
         <View style={styles.previewPane}>
-          <Image 
-            source={require('../../../assets/logo.png')}
-            style={styles.previewImage}
-            resizeMode="contain"
-            accessibilityLabel="Outfit Preview"
+          {selectedItem ? (
+            <Image 
+              source={selectedItem.image}
+              style={styles.previewImage}
+              resizeMode="contain"
+              accessibilityLabel="Selected Outfit Preview"
+            />
+          ) : (
+            <Text style={styles.previewPlaceholder}>
+              Select an item to preview your outfit
+            </Text>
+          )}
+        </View>
+
+        {/* Search Bar */}
+        <View style={styles.searchBarContainer}>
+          <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search items..."
+            placeholderTextColor="#999"
+            value={searchText}
+            onChangeText={setSearchText}
           />
         </View>
 
-        {/* Filter Controls */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
-          contentContainerStyle={styles.filterContainer}
-        >
-          {filters.map((filter, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.filterChip,
-                selectedFilter === filter && styles.filterChipSelected,
-              ]}
-              onPress={() => handleSelectFilter(filter)}
-            >
-              <Text
+        {/* Filter Section: Type */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Filter by Type</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.filterChipsContainer}
+          >
+            {typeFilters.map((filter, index) => (
+              <TouchableOpacity
+                key={index}
                 style={[
-                  styles.filterChipText,
-                  selectedFilter === filter && styles.filterChipTextSelected,
+                  styles.filterChip,
+                  selectedType === filter && styles.filterChipSelected,
                 ]}
+                onPress={() => setSelectedType(selectedType === filter ? null : filter)}
               >
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Item Thumbnails Grid */}
-        <View style={styles.itemsGrid}>
-          {dummyItems.map((_, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.itemThumbnailContainer}
-            >
-              <Image 
-                source={require('../../../assets/logo.png')}
-                style={styles.itemThumbnail}
-                resizeMode="cover"
-                accessibilityLabel={`Item ${index + 1}`}
-              />
-            </TouchableOpacity>
-          ))}
+                <Text style={[
+                  styles.filterChipText,
+                  selectedType === filter && styles.filterChipTextSelected,
+                ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
+
+        {/* Filter Section: Color */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Filter by Color</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.filterChipsContainer}
+          >
+            {colorFilters.map((filter, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.filterChip,
+                  selectedColor === filter && styles.filterChipSelected,
+                ]}
+                onPress={() => setSelectedColor(selectedColor === filter ? null : filter)}
+              >
+                <Text style={[
+                  styles.filterChipText,
+                  selectedColor === filter && styles.filterChipTextSelected,
+                ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Sort Section: Frequency */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Sort by Frequency</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.filterChipsContainer}
+          >
+            {frequencyFilters.map((filter, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.filterChip,
+                  selectedFrequency === filter && styles.filterChipSelected,
+                ]}
+                onPress={() => setSelectedFrequency(selectedFrequency === filter ? null : filter)}
+              >
+                <Text style={[
+                  styles.filterChipText,
+                  selectedFrequency === filter && styles.filterChipTextSelected,
+                ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Items Grid */}
+        <Text style={styles.gridTitle}>
+          {filteredItems.length} {filteredItems.length === 1 ? 'Item' : 'Items'} Found
+        </Text>
+        
+        <FlatList
+          data={filteredItems}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          numColumns={2}
+          scrollEnabled={false}
+          contentContainerStyle={styles.itemsGrid}
+          columnWrapperStyle={styles.columnWrapper}
+        />
 
         {/* CTA Buttons */}
         <View style={styles.buttonRow}>
           <TouchableOpacity 
-            style={styles.confirmButton} 
+            style={[
+              styles.confirmButton,
+              !selectedItem && styles.disabledButton
+            ]} 
             onPress={handleConfirmOutfit}
+            disabled={!selectedItem}
           >
             <Text style={styles.buttonText}>Confirm Outfit</Text>
           </TouchableOpacity>
@@ -129,7 +269,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F7F7',
   },
   header: {
-    marginTop: 40, 
+    marginTop: 40,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
@@ -148,68 +288,156 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingTop: 40, 
+    paddingBottom: 32,
   },
   previewPane: {
-    height: 200,
+    height: 240,
     backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: 12,
+    marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   previewImage: {
-    width: '80%',
-    height: '80%',
+    width: '85%',
+    height: '85%',
   },
-  filterContainer: {
-    paddingVertical: 8,
+  previewPlaceholder: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 20,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+  },
+  filterSection: {
+    marginBottom: 16,
+  },
+  filterSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 8,
+  },
+  filterChipsContainer: {
+    flexDirection: 'row',
+    paddingVertical: 4,
   },
   filterChip: {
     backgroundColor: '#48AAA6',
     borderRadius: 20,
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginRight: 8,
+    paddingHorizontal: 14,
+    marginRight: 10,
   },
   filterChipSelected: {
     backgroundColor: '#F2B705',
   },
   filterChipText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
   filterChipTextSelected: {
     color: '#fff',
   },
+  gridTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+    marginTop: 8,
+    marginBottom: 12,
+  },
   itemsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    paddingBottom: 16,
+  },
+  columnWrapper: {
     justifyContent: 'space-between',
-    marginVertical: 16,
   },
   itemThumbnailContainer: {
-    width: '48%',
-    marginBottom: 16,
+    width: itemWidth,
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#ddd',
-    justifyContent: 'center',
+    padding: 10,
+    marginBottom: 16,
     alignItems: 'center',
-    padding: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  selectedItemContainer: {
+    borderColor: '#F2B705',
+    borderWidth: 2,
+    backgroundColor: '#FFFBF0',
+  },
+  imageContainer: {
+    width: '100%',
+    height: itemWidth - 20, // Account for padding
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 8,
   },
   itemThumbnail: {
-    width: 100,
-    height: 100,
+    width: '100%',
+    height: '100%',
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 4,
+    width: '100%',
+  },
+  timesWornContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  timesWornText: {
+    fontSize: 14,
+    color: '#48AAA6',
+    marginLeft: 4,
+    fontWeight: '500',
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 32,
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 16,
   },
   confirmButton: {
     backgroundColor: '#F2B705',
@@ -217,6 +445,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   reshuffleButton: {
     flexDirection: 'row',
@@ -226,6 +464,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     alignItems: 'center',
+    flex: 1,
   },
   buttonText: {
     fontSize: 16,

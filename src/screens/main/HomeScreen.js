@@ -7,13 +7,17 @@ import {
   TouchableOpacity, 
   Image, 
   ScrollView,
-  Alert
+  Alert,
+  SafeAreaView,
+  ActivityIndicator,
+  StatusBar
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import { useAuth } from '../../contexts/AuthContext';
 
+// Mockup data - would come from API in real implementation
 const outfitSuggestions = [
   {
     id: '1',
@@ -22,6 +26,7 @@ const outfitSuggestions = [
       require('../../../assets/logo.png'),
       require('../../../assets/logo.png'),
     ],
+    description: 'Perfect for today\'s weather'
   },
   {
     id: '2',
@@ -30,6 +35,7 @@ const outfitSuggestions = [
       require('../../../assets/logo.png'),
       require('../../../assets/logo.png'),
     ],
+    description: 'Casual comfort outfit'
   },
   {
     id: '3',
@@ -38,17 +44,18 @@ const outfitSuggestions = [
       require('../../../assets/logo.png'),
       require('../../../assets/logo.png'),
     ],
+    description: 'Trendy style for the day'
   },
 ];
 
 const previousOutfitsData = [
-  { id: '1', thumbnail: require('../../../assets/logo.png') },
-  { id: '2', thumbnail: require('../../../assets/logo.png') },
-  { id: '3', thumbnail: require('../../../assets/logo.png') },
-  { id: '4', thumbnail: require('../../../assets/logo.png') },
-  { id: '5', thumbnail: require('../../../assets/logo.png') },
-  { id: '6', thumbnail: require('../../../assets/logo.png') },
-  { id: '7', thumbnail: require('../../../assets/logo.png') },
+  { id: '1', thumbnail: require('../../../assets/logo.png'), date: 'Mon' },
+  { id: '2', thumbnail: require('../../../assets/logo.png'), date: 'Tue' },
+  { id: '3', thumbnail: require('../../../assets/logo.png'), date: 'Wed' },
+  { id: '4', thumbnail: require('../../../assets/logo.png'), date: 'Thu' },
+  { id: '5', thumbnail: require('../../../assets/logo.png'), date: 'Fri' },
+  { id: '6', thumbnail: require('../../../assets/logo.png'), date: 'Sat' },
+  { id: '7', thumbnail: require('../../../assets/logo.png'), date: 'Sun' },
 ];
 
 const mapWeatherCodeToWeather = (code) => {
@@ -94,10 +101,57 @@ const mapWeatherCodeToWeather = (code) => {
   }
 };
 
+// Custom component for outfit card
+const OutfitCard = ({ outfit, onPress }) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    style={styles.outfitCard}
+    activeOpacity={0.7}
+  >
+    <View style={styles.outfitImagesRow}>
+      {outfit.images.map((img, index) => (
+        <Image 
+          key={index}
+          source={img}
+          style={styles.outfitImage}
+          resizeMode="cover"
+          accessibilityLabel={`Outfit ${outfit.id} Image ${index + 1}`}
+        />
+      ))}
+    </View>
+    <Text style={styles.outfitCaption}>
+      {outfit.description}
+    </Text>
+    <TouchableOpacity 
+      style={styles.selectOutfitButton}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Text style={styles.selectOutfitButtonText}>Select</Text>
+    </TouchableOpacity>
+  </TouchableOpacity>
+);
+
+// Previous outfit thumbnail component
+const OutfitThumbnail = ({ outfit, onPress }) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    style={styles.outfitThumbnailContainer}
+    activeOpacity={0.7}
+  >
+    <Image 
+      source={outfit.thumbnail}
+      style={styles.outfitThumbnail}
+      resizeMode="cover"
+      accessibilityLabel={`Outfit from ${outfit.date}`}
+    />
+    <Text style={styles.dayLabel}>{outfit.date}</Text>
+  </TouchableOpacity>
+);
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { currentUser, userProfile } = useAuth();
-  // Extract only the first name from the user's display name
   const firstName = (currentUser?.displayName || userProfile?.name || 'Guest').split(' ')[0];
 
   const [weather, setWeather] = useState({
@@ -106,13 +160,16 @@ const HomeScreen = () => {
     icon: '01d',
   });
   const [previousOutfits, setPreviousOutfits] = useState(previousOutfitsData);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchWeather = async () => {
       try {
+        setIsLoading(true);
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           console.error('Permission to access location was denied');
+          setIsLoading(false);
           return;
         }
         const loc = await Location.getCurrentPositionAsync({});
@@ -136,6 +193,8 @@ const HomeScreen = () => {
         });
       } catch (error) {
         console.error('Error fetching weather:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -148,107 +207,175 @@ const HomeScreen = () => {
       "Do you want to confirm this is the outfit for the day?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Confirm", onPress: () => Alert.alert("Outfit confirmed!") }
+        { 
+          text: "Confirm", 
+          onPress: () => {
+            // Show success message with animation
+            Alert.alert(
+              "Success!",
+              "Your outfit has been set for today",
+              [{ text: "OK" }]
+            );
+          }
+        }
       ]
     );
   };
 
+  // Get appropriate greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Header with greeting and weather widget */}
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Good Morning, {firstName}!</Text>
-        <View style={styles.weatherContainer}>
-          <Image 
-            source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}@2x.png` }}
-            style={styles.weatherIcon}
-          />
-          <Text style={styles.weatherText}>
-            {weather.temperature}, {weather.forecast}
-          </Text>
-        </View>
-      </View>
-
-      {/* Custom Outfit Button */}
-      <TouchableOpacity 
-        style={styles.customizeButton}
-        onPress={() => navigation.navigate('OutfitCustomizer')}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F7F7F7" />
+      
+      <ScrollView 
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
       >
-        <Text style={styles.customizeButtonText}>Custom Outfit</Text>
-      </TouchableOpacity>
-
-      {/* AI Outfit Options */}
-      <View style={styles.outfitOptionsSection}>
-        <Text style={styles.sectionTitle}>Today's Outfit Options</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {outfitSuggestions.map((outfit) => (
-            <TouchableOpacity 
-              key={outfit.id} 
-              onPress={() => handleConfirmOutfit(outfit)}
-              style={styles.outfitCard}
-            >
-              <View style={styles.outfitImagesRow}>
-                {outfit.images.map((img, index) => (
-                  <Image 
-                    key={index}
-                    source={img}
-                    style={styles.outfitImage}
-                    resizeMode="cover"
-                    accessibilityLabel={`Outfit ${outfit.id} Image ${index + 1}`}
-                  />
-                ))}
+        {/* Header with greeting and weather widget */}
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.greeting}>{getGreeting()}, {firstName}!</Text>
+            
+            {isLoading ? (
+              <View style={styles.weatherContainer}>
+                <ActivityIndicator size="small" color="#48AAA6" />
+                <Text style={styles.loadingText}>Loading weather...</Text>
               </View>
-              <Text style={styles.outfitCaption}>
-                AI recommended for {weather.temperature}, {weather.forecast}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+            ) : (
+              <View style={styles.weatherContainer}>
+                <Image 
+                  source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}@2x.png` }}
+                  style={styles.weatherIcon}
+                />
+                <Text style={styles.weatherText}>
+                  {weather.temperature}, {weather.forecast}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
 
-      {/* Previous 7-Day Outfits Carousel */}
-      <View style={styles.previousOutfitsSection}>
-        <Text style={styles.sectionTitle}>Previous 7-Day Outfits</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {previousOutfits.map((outfit) => (
-            <TouchableOpacity 
-              key={outfit.id} 
-              onPress={() => navigation.navigate('OutfitDetail', { outfitId: outfit.id })}
-              style={styles.outfitThumbnailContainer}
-            >
-              <Image 
-                source={outfit.thumbnail}
-                style={styles.outfitThumbnail}
-                resizeMode="cover"
-                accessibilityLabel={`Outfit ${outfit.id}`}
-              />
+        {/* Custom Outfit Button */}
+        <TouchableOpacity 
+          style={styles.customizeButton}
+          onPress={() => navigation.navigate('OutfitCustomizer')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="create-outline" size={22} color="#fff" style={styles.buttonIcon} />
+          <Text style={styles.customizeButtonText}>Create Custom Outfit</Text>
+        </TouchableOpacity>
+
+        {/* AI Outfit Options */}
+        <View style={styles.outfitOptionsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Today's Outfit Options</Text>
+            <TouchableOpacity onPress={() => Alert.alert("Refresh", "Refreshing outfit suggestions...")}>
+              <Ionicons name="refresh" size={22} color="#48AAA6" />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-    </View>
+          </View>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.outfitCardsContainer}
+          >
+            {outfitSuggestions.map((outfit) => (
+              <OutfitCard 
+                key={outfit.id}
+                outfit={outfit}
+                onPress={() => handleConfirmOutfit(outfit)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Previous 7-Day Outfits Carousel */}
+        <View style={styles.previousOutfitsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Previous 7-Day Outfits</Text>
+          </View>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.thumbnailsContainer}
+          >
+            {previousOutfits.map((outfit) => (
+              <OutfitThumbnail
+                key={outfit.id}
+                outfit={outfit}
+                onPress={() => navigation.navigate('OutfitDetail', { outfitId: outfit.id })}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.weeklyAnalyticsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Weekly Stats</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Analytics')}>
+              <Text style={styles.seeAllText}>More</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.statsCard}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>5</Text>
+              <Text style={styles.statLabel}>Outfits Logged</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>3</Text>
+              <Text style={styles.statLabel}>Most Worn Item</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#F7F7F7',
-    paddingBottom: 16,
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 24,
   },
   header: {
-    marginTop: 40,
-    padding: 16,
     backgroundColor: '#fff',
-    borderBottomColor: '#ddd',
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomColor: '#eee',
     borderBottomWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  headerContent: {
+    paddingHorizontal: 16,
   },
   greeting: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#48AAA6',
+    marginBottom: 4,
   },
   weatherContainer: {
     flexDirection: 'row',
@@ -256,44 +383,80 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   weatherIcon: {
-    width: 50,
-    height: 50,
+    width: 46,
+    height: 46,
   },
   weatherText: {
     fontSize: 16,
-    marginLeft: 4,
     color: '#555',
+    fontWeight: '500',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#555',
+    marginLeft: 8,
   },
   customizeButton: {
     margin: 16,
+    marginTop: 24,
     backgroundColor: '#F2B705',
-    paddingVertical: 14,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    shadowColor: '#F2B705',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   customizeButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
   },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   outfitOptionsSection: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#48AAA6',
-    marginBottom: 8,
+  },
+  seeAllText: {
+    fontSize: 16,
+    color: '#48AAA6',
+    fontWeight: '500',
+  },
+  outfitCardsContainer: {
+    paddingRight: 16,
+    paddingVertical: 8,
   },
   outfitCard: {
-    width: 200,
+    width: 220,
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginRight: 12,
+    borderColor: '#eee',
+    marginRight: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   outfitImagesRow: {
     flexDirection: 'row',
@@ -302,24 +465,93 @@ const styles = StyleSheet.create({
   },
   outfitImage: {
     width: '30%',
-    height: 100,
-    borderRadius: 8,
+    height: 110,
+    borderRadius: 10,
   },
   outfitCaption: {
     fontSize: 16,
-    color: '#555',
+    color: '#333',
+    marginVertical: 12,
     textAlign: 'center',
+    fontWeight: '500',
+  },
+  selectOutfitButton: {
+    backgroundColor: '#48AAA6',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  selectOutfitButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   previousOutfitsSection: {
-    marginVertical: 8,
     marginHorizontal: 16,
+    marginTop: 32,
+  },
+  thumbnailsContainer: {
+    paddingRight: 16,
+    paddingVertical: 8,
   },
   outfitThumbnailContainer: {
-    marginRight: 12,
+    marginRight: 16,
+    alignItems: 'center',
   },
   outfitThumbnail: {
     width: 80,
     height: 80,
-    borderRadius: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  dayLabel: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  weeklyAnalyticsSection: {
+    marginHorizontal: 16,
+    marginTop: 32,
+  },
+  statsCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: '#eee',
+    marginHorizontal: 10,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#48AAA6',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
   },
 });
