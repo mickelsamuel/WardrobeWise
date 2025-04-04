@@ -40,7 +40,10 @@ const SignInScreen = ({ navigation }) => {
       if (error) {
         Alert.alert('Sign In Failed', error.message);
       } else if (user) {
-        await AsyncStorage.setItem('userToken', user.token);
+        // Optionally store token if available
+        if (user.token) {
+          await AsyncStorage.setItem('userToken', user.token);
+        }
         navigation.replace('Home');
       }
     } catch (error) {
@@ -49,7 +52,7 @@ const SignInScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-
+  
   const handleGoogleSignInPress = async () => {
     setLoading(true);
     try {
@@ -57,7 +60,10 @@ const SignInScreen = ({ navigation }) => {
       if (result.error) {
         Alert.alert('Google Sign In Failed', result.error.message);
       } else if (result.user) {
-        await AsyncStorage.setItem('userToken', result.user.token);
+        // Optionally store token if available
+        if (result.user.token) {
+          await AsyncStorage.setItem('userToken', result.user.token);
+        }
         navigation.replace('Home');
       }
     } catch (error) {
@@ -65,7 +71,7 @@ const SignInScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const handleForgotPassword = async () => {
     if (!email) {
