@@ -1,9 +1,9 @@
 // src/firebase/config.js
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_VvZTp4_81OYqb7b5QrasrQUeqI8PB68",
@@ -17,7 +17,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Conditionally initialize analytics only for web
+let analytics = null;
+if (Platform.OS === 'web') {
+  try {
+    const { getAnalytics } = require("firebase/analytics");
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.error("Firebase analytics initialization failed:", error);
+  }
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
