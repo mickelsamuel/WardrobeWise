@@ -130,27 +130,30 @@ const AddClothingScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.imagePreviewContainer}>
-          <Image 
-            source={{ uri: image || placeholderImage }} 
-            style={[styles.imagePreview, !image && styles.imagePlaceholder]} 
-            accessibilityLabel="Clothing image preview" 
-          />
-          {image && <View style={styles.boundingBox} />}
-          {!image && (
-            <View style={styles.placeholderOverlay}>
-              <Text style={styles.placeholderText}>Image Preview</Text>
-            </View>
-            {image && (
-              <View style={{ marginBottom: 12, width: '100%' }}>
-                <Text style={styles.label}>AI Detected:</Text>
-                <Text style={styles.aiResult}>Type: {aiDetectedType}</Text>
-                <Text style={styles.aiResult}>Color: {aiDetectedColor}</Text>
-                <Text style={styles.aiResult}>Pattern: {aiDetectedPattern}</Text>
-                <Text style={styles.label}>You can manually override below</Text>
-              </View>
-            )}
-          )}
-        </View>
+  <Image 
+    source={{ uri: image || placeholderImage }} 
+    style={[styles.imagePreview, !image && styles.imagePlaceholder]} 
+    accessibilityLabel="Clothing image preview" 
+  />
+
+  {image ? (
+    <>
+      <View style={styles.boundingBox} />
+      <View style={{ marginBottom: 12, width: '100%' }}>
+        <Text style={styles.label}>AI Detected:</Text>
+        <Text style={styles.aiResult}>Type: {aiDetectedType}</Text>
+        <Text style={styles.aiResult}>Color: {aiDetectedColor}</Text>
+        <Text style={styles.aiResult}>Pattern: {aiDetectedPattern}</Text>
+        <Text style={styles.label}>You can manually override below</Text>
+      </View>
+    </>
+  ) : (
+    <View style={styles.placeholderOverlay}>
+      <Text style={styles.placeholderText}>Image Preview</Text>
+    </View>
+  )}
+</View>
+
         <View style={styles.form}>
           <Text style={styles.label}>Item Type *</Text>
           <View style={styles.chipContainer}>

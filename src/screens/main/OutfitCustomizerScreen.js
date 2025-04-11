@@ -22,9 +22,6 @@ const typeFilters = ["Tops", "Bottoms", "Shoes", "Accessories"];
 const colorFilters = ["Red", "Blue", "Green", "Black", "White"];
 const frequencyFilters = ["Most Worn", "Least Worn"];
 
-const [selectedWeather, setSelectedWeather] = useState(null);
-const [selectedOccasion, setSelectedOccasion] = useState(null);
-
 const dummyItems = [
   { id: '1', name: 'Red Dress', timesWorn: 5, type: 'Tops', color: 'Red', lastWorn: '2025-03-15', price: 75, image: require('../../../assets/red_dress.jpg') },
   { id: '2', name: 'Blue Jeans', timesWorn: 3, type: 'Bottoms', color: 'Blue', lastWorn: '2025-03-12', price: 50, image: require('../../../assets/blue_jeans.jpg') },
@@ -37,13 +34,14 @@ const dummyItems = [
 const OutfitCustomizerScreen = () => {
   const navigation = useNavigation();
   
-
   // Filter states
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedFrequency, setSelectedFrequency] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedWeather, setSelectedWeather] = useState(null);
+  const [selectedOccasion, setSelectedOccasion] = useState(null);
 
   // Filtering logic
   let filteredItems = dummyItems.filter(item => {
@@ -89,7 +87,9 @@ const OutfitCustomizerScreen = () => {
           accessibilityLabel={`${item.name} thumbnail`}
         />
       </View>
-      <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
+      <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">
+        {item.name}
+      </Text>
       <View style={styles.timesWornContainer}>
         <Ionicons name="time-outline" size={16} color="#48AAA6" />
         <Text style={styles.timesWornText}>{item.timesWorn}</Text>
@@ -167,89 +167,9 @@ const OutfitCustomizerScreen = () => {
           </ScrollView>
         </View>
 
- {/* Filter Section: Color */}
-<View style={styles.filterSection}>
-  <Text style={styles.filterSectionTitle}>Filter by Color</Text>
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.filterChipsContainer}
-  >
-    {["Red", "Blue", "Green", "Black"].map((filter, index) => (
-      <TouchableOpacity
-        key={index}
-        style={[
-          styles.filterChip,
-          selectedColor === filter && styles.filterChipSelected,
-        ]}
-        onPress={() => setSelectedColor(selectedColor === filter ? null : filter)}
-      >
-        <Text style={[
-          styles.filterChipText,
-          selectedColor === filter && styles.filterChipTextSelected,
-        ]}>
-          {filter}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</View>
-
-{/* Filter Section: Weather */}
-<View style={styles.filterSection}>
-  <Text style={styles.filterSectionTitle}>Filter by Weather</Text>
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.filterChipsContainer}
-  >
-    {["Sunny", "Rainy", "Cold", "Hot"].map((filter, index) => (
-      <TouchableOpacity
-        key={index}
-        style={[
-          styles.filterChip,
-          selectedWeather === filter && styles.filterChipSelected,
-        ]}
-        onPress={() => setSelectedWeather(selectedWeather === filter ? null : filter)}
-      >
-        <Text style={[
-          styles.filterChipText,
-          selectedWeather === filter && styles.filterChipTextSelected,
-        ]}>
-          {filter}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</View>
-
-{/* Filter Section: Occasion */}
-<View style={styles.filterSection}>
-  <Text style={styles.filterSectionTitle}>Filter by Occasion</Text>
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.filterChipsContainer}
-  >
-    {["Casual", "Formal", "Sport", "Party"].map((filter, index) => (
-      <TouchableOpacity
-        key={index}
-        style={[
-          styles.filterChip,
-          selectedOccasion === filter && styles.filterChipSelected,
-        ]}
-        onPress={() => setSelectedOccasion(selectedOccasion === filter ? null : filter)}
-      >
-        <Text style={[
-          styles.filterChipText,
-          selectedOccasion === filter && styles.filterChipTextSelected,
-        ]}>
-          {filter}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</View>
+        {/* Filter Section: Color */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Filter by Color</Text>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false} 
@@ -275,7 +195,62 @@ const OutfitCustomizerScreen = () => {
           </ScrollView>
         </View>
 
-        
+        {/* Filter Section: Weather */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Filter by Weather</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.filterChipsContainer}
+          >
+            {["Sunny", "Rainy", "Cold", "Hot"].map((filter, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.filterChip,
+                  selectedWeather === filter && styles.filterChipSelected,
+                ]}
+                onPress={() => setSelectedWeather(selectedWeather === filter ? null : filter)}
+              >
+                <Text style={[
+                  styles.filterChipText,
+                  selectedWeather === filter && styles.filterChipTextSelected,
+                ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Filter Section: Occasion */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>Filter by Occasion</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.filterChipsContainer}
+          >
+            {["Casual", "Formal", "Sport", "Party"].map((filter, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.filterChip,
+                  selectedOccasion === filter && styles.filterChipSelected,
+                ]}
+                onPress={() => setSelectedOccasion(selectedOccasion === filter ? null : filter)}
+              >
+                <Text style={[
+                  styles.filterChipText,
+                  selectedOccasion === filter && styles.filterChipTextSelected,
+                ]}>
+                  {filter}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         {/* Sort Section: Frequency */}
         <View style={styles.filterSection}>
           <Text style={styles.filterSectionTitle}>Sort by Frequency</Text>
@@ -318,34 +293,35 @@ const OutfitCustomizerScreen = () => {
           contentContainerStyle={styles.itemsGrid}
           columnWrapperStyle={styles.columnWrapper}
         />
-        <View style={styles.actionButtonsContainer}>
-  <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmOutfit}>
-    <Text style={styles.confirmButtonText}>Confirm Outfit</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.reshuffleButton} onPress={handleReshuffle}>
-    <Text style={styles.reshuffleButtonText}>Reshuffle</Text>
-  </TouchableOpacity>
-</View>
-<View style={styles.summaryContainer}>
-  {selectedItem ? (
-    <>
-      <Text style={styles.summaryTitle}>Selected Item:</Text>
-      <Text style={styles.summaryText}>• {selectedItem.name}</Text>
-      <Text style={styles.summaryText}>• Worn {selectedItem.timesWorn} times</Text>
-      <Text style={styles.summaryText}>• Last worn on {selectedItem.lastWorn}</Text>
-      <Text style={styles.summaryText}>• ${selectedItem.price}</Text>
-    </>
-  ) : (
-    <Text style={styles.summaryPlaceholder}>No item selected yet</Text>
-  )}
-</View>
 
-<TouchableOpacity 
-  style={styles.addButton} 
-  onPress={() => navigation.navigate('Closet')}
->
-  <Text style={styles.addButtonText}>Go to Closet to Add More</Text>
-</TouchableOpacity>
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmOutfit}>
+            <Text style={styles.confirmButtonText}>Confirm Outfit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.reshuffleButton} onPress={handleReshuffle}>
+            <Text style={styles.reshuffleButtonText}>Reshuffle</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.summaryContainer}>
+          {selectedItem ? (
+            <>
+              <Text style={styles.summaryTitle}>Selected Item:</Text>
+              <Text style={styles.summaryText}>• {selectedItem.name}</Text>
+              <Text style={styles.summaryText}>• Worn {selectedItem.timesWorn} times</Text>
+              <Text style={styles.summaryText}>• Last worn on {selectedItem.lastWorn}</Text>
+              <Text style={styles.summaryText}>• ${selectedItem.price}</Text>
+            </>
+          ) : (
+            <Text style={styles.summaryPlaceholder}>No item selected yet</Text>
+          )}
+        </View>
+
+        <TouchableOpacity 
+          style={styles.addButton} 
+          onPress={() => navigation.navigate('Closet')}
+        >
+          <Text style={styles.addButtonText}>Go to Closet to Add More</Text>
+        </TouchableOpacity>
 
         {/* CTA Buttons */}
         <View style={styles.buttonRow}>
@@ -373,6 +349,7 @@ const OutfitCustomizerScreen = () => {
     </View>
   );
 };
+
 export default OutfitCustomizerScreen;
 
 const styles = StyleSheet.create({
@@ -517,7 +494,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: itemWidth - 20, // Account for padding
+    height: itemWidth - 20,
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 8,
@@ -625,10 +602,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  
   addButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  }
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  reshuffleButtonText: {
+    fontSize: 16,
+    color: '#48AAA6',
+    fontWeight: '600',
+  },
 });
