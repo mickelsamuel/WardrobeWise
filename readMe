@@ -1,40 +1,30 @@
-# Wardrobewise
+Wardrobewise
+Welcome to the Wardrobewise project! Follow the instructions below to get the project up and running on your local machine and your mobile device.
+Prerequisites
 
-Welcome to the **Wardrobewise** project! Follow the instructions below to get the project up and running on your local machine and your mobile device.
+Node.js and npm: Make sure you have Node.js and npm installed on your computer.
+Expo Go App: Download the Expo Go app on your mobile device.
 
-## Prerequisites
+Installation
 
-- **Node.js and npm:** Make sure you have Node.js and npm installed on your computer.
-- **Expo Go App:** Download the [Expo Go](https://expo.dev/client) app on your mobile device.
+Clone the Repository:
+git clone https://github.com/yourusername/wardrobewise.git && cd wardrobewise
 
-## Installation
+Install Dependencies:
+npm install
 
-1. **Clone the Repository:**  
-   ```
-   git clone https://github.com/yourusername/wardrobewise.git && cd wardrobewise
-   ```
 
-2. **Install Dependencies:**  
-   ```
-   npm install
-   ```
+Running the Project
 
-## Running the Project
+Start the Expo Server:
+npx expo start
 
-1. **Start the Expo Server:**  
-   ```
-   npx expo start
-   ```
+Switch to Expo Go Mode:
+When the Expo server starts, press s in the terminal to switch to Expo Go mode.
+Scan the QR Code:
+Scan the QR Code shown in your terminal using your phone's camera.
+Launch the App:
+On the Expo page that opens in your browser, press the Expo Go button at the bottom of the page to start using the app on your device.
 
-2. **Switch to Expo Go Mode:**  
-   When the Expo server starts, press `s` in the terminal to switch to Expo Go mode.
-
-3. **Scan the QR Code:**  
-   Scan the QR Code shown in your terminal using your phone's camera.
-
-4. **Launch the App:**  
-   On the Expo page that opens in your browser, press the **Expo Go** button at the bottom of the page to start using the app on your device.
-
-## Final Notes
-
-You're now set to use **Wardrobewise** with the Expo Go app on your phone. If you encounter any issues, please refer to the [Expo Documentation](https://docs.expo.dev/) for additional troubleshooting steps.
+Final Notes
+You're now set to use Wardrobewise with the Expo Go app on your phone. If you encounter any issues, please refer to the Expo Documentation for additional troubleshooting steps.
