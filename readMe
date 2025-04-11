@@ -10,18 +10,28 @@ Welcome to the **Wardrobewise** project! Follow the instructions below to get th
 ## Installation
 
 1. **Clone the Repository:**  
-   `git clone https://github.com/yourusername/wardrobewise.git && cd wardrobewise`
+   ```
+   git clone https://github.com/yourusername/wardrobewise.git && cd wardrobewise
+   ```
+
 2. **Install Dependencies:**  
-   `npm install`
+   ```
+   npm install
+   ```
 
 ## Running the Project
 
 1. **Start the Expo Server:**  
-   `npx expo start`
+   ```
+   npx expo start
+   ```
+
 2. **Switch to Expo Go Mode:**  
    When the Expo server starts, press `s` in the terminal to switch to Expo Go mode.
+
 3. **Scan the QR Code:**  
    Scan the QR Code shown in your terminal using your phone's camera.
+
 4. **Launch the App:**  
    On the Expo page that opens in your browser, press the **Expo Go** button at the bottom of the page to start using the app on your device.
 
