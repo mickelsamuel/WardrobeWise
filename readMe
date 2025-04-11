@@ -1,6 +1,6 @@
 # Wardrobewise
 
-Welcome to the Wardrobewise project! Follow the instructions below to get the project up and running on your local machine and your mobile device.
+Welcome to the **Wardrobewise** project! Follow the instructions below to get the project up and running on your local machine and your mobile device.
 
 ## Prerequisites
 
@@ -9,43 +9,22 @@ Welcome to the Wardrobewise project! Follow the instructions below to get the pr
 
 ## Installation
 
-1. **Clone the Repository:**
-
-   ```bash
-   git clone https://github.com/yourusername/wardrobewise.git
-   cd wardrobewise
-   ```
-
-2. **Install Dependencies:**
-
-   In the project directory, run:
-
-   ```bash
-   npm install
-   ```
+1. **Clone the Repository:**  
+   `git clone https://github.com/yourusername/wardrobewise.git && cd wardrobewise`
+2. **Install Dependencies:**  
+   `npm install`
 
 ## Running the Project
 
-1. **Start the Expo Server:**
-
-   Run the following command in your terminal:
-   
-   ```bash
-   npx expo start
-   ```
-
-2. **Switch to Expo Go Mode:**
-
+1. **Start the Expo Server:**  
+   `npx expo start`
+2. **Switch to Expo Go Mode:**  
    When the Expo server starts, press `s` in the terminal to switch to Expo Go mode.
-
-3. **Scan the QR Code:**
-
-   Scan the QR Code in the terminal using your phone camera.
-
-4. **Launch the App:**
-
+3. **Scan the QR Code:**  
+   Scan the QR Code shown in your terminal using your phone's camera.
+4. **Launch the App:**  
    On the Expo page that opens in your browser, press the **Expo Go** button at the bottom of the page to start using the app on your device.
 
 ## Final Notes
 
-You are now set to use Wardrobewise with the Expo Go app on your phone. If you run into any issues, please refer to the [Expo Documentation](https://docs.expo.dev/) for additional troubleshooting steps.
+You're now set to use **Wardrobewise** with the Expo Go app on your phone. If you encounter any issues, please refer to the [Expo Documentation](https://docs.expo.dev/) for additional troubleshooting steps.
