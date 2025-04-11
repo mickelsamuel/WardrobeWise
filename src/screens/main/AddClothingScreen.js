@@ -19,6 +19,7 @@ const colorOptions = ["Red", "Blue", "Green", "Black", "White"];
 const styleOptions = ["Casual", "Formal", "Sport", "Vintage"];
 const placeholderImage = 'https://via.placeholder.com/200x150';
 
+
 const AddClothingScreen = () => {
   // State variables for the image and form fields
   const [image, setImage] = useState(null);
@@ -28,6 +29,9 @@ const AddClothingScreen = () => {
   const [price, setPrice] = useState('');
   const [wearCount, setWearCount] = useState('');
 
+  const [aiDetectedType, setAIDetectedType] = useState('');
+  const [aiDetectedColor, setAIDetectedColor] = useState('');
+  const [aiDetectedPattern, setAIDetectedPattern] = useState('');
   // Request permissions for camera and media library
   useEffect(() => {
     (async () => {
@@ -54,6 +58,13 @@ const AddClothingScreen = () => {
       const uri = result.assets ? result.assets[0].uri : result.uri;
       setImage(uri);
     }
+    if (!result.cancelled) {
+      const uri = result.assets ? result.assets[0].uri : result.uri;
+      setImage(uri);
+      setAIDetectedType('Tops');           // Simulated AI
+      setAIDetectedColor('Red');           // Simulated AI
+      setAIDetectedPattern('Striped');     // Simulated AI
+    }
   };
 
   // Launch the media library to pick an image
@@ -67,6 +78,13 @@ const AddClothingScreen = () => {
     if (!result.cancelled) {
       const uri = result.assets ? result.assets[0].uri : result.uri;
       setImage(uri);
+    }
+    if (!result.cancelled) {
+      const uri = result.assets ? result.assets[0].uri : result.uri;
+      setImage(uri);
+      setAIDetectedType('Tops');           // Simulated AI
+      setAIDetectedColor('Red');           // Simulated AI
+      setAIDetectedPattern('Striped');     // Simulated AI
     }
   };
 
@@ -99,6 +117,9 @@ const AddClothingScreen = () => {
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
       >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ alignSelf: 'flex-start', marginBottom: 8 }}>
+  <Text style={{ color: '#48AAA6', fontWeight: '600' }}>← Back to Closet</Text>
+</TouchableOpacity>
         <Text style={styles.title}>Add New Clothing Item</Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takePhoto}>
@@ -119,6 +140,15 @@ const AddClothingScreen = () => {
             <View style={styles.placeholderOverlay}>
               <Text style={styles.placeholderText}>Image Preview</Text>
             </View>
+            {image && (
+              <View style={{ marginBottom: 12, width: '100%' }}>
+                <Text style={styles.label}>AI Detected:</Text>
+                <Text style={styles.aiResult}>Type: {aiDetectedType}</Text>
+                <Text style={styles.aiResult}>Color: {aiDetectedColor}</Text>
+                <Text style={styles.aiResult}>Pattern: {aiDetectedPattern}</Text>
+                <Text style={styles.label}>You can manually override below</Text>
+              </View>
+            )}
           )}
         </View>
         <View style={styles.form}>
@@ -311,6 +341,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  aiResult: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 2,
   },
 });
 
